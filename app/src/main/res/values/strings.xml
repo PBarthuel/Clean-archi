@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">TestBfor</string>
+    <string name="generic_error">Error</string>
+    <string name="generic_reset">Reset</string>
+    <string name="load_details">Load Details</string>
+    <string name="pokemon_height">Height: %1$dcm</string>
+    <string name="pokemon_weight">Weight: %1$dkg</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+</resources>

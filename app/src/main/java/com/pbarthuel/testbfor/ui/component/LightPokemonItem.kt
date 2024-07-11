@@ -36,7 +36,7 @@ fun LightPokemonItem(
             modifier = Modifier.align(CenterVertically)
         )
         IconButton(
-            onClick = { onLoadDetailClicked(pokemon.url) }
+            onClick = { onLoadDetailClicked(pokemon.imageUrl) }
         ) {
             Icon(
                 painter = painterResource(R.drawable.baseline_cached_24),
@@ -53,7 +53,7 @@ private fun LightPokemonItemPreview() {
         modifier = Modifier.background(color = Color.Gray),
         pokemon = PokemonUi.LightPokemonUi(
             name = "Bulbasaur",
-            url = "https://pokeapi.co/api/v2/pokemon/1/"
+            imageUrl = "https://pokeapi.co/api/v2/pokemon/1/"
         ),
         onLoadDetailClicked = {}
     )

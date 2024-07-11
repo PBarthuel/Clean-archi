@@ -25,7 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pbarthuel.testbfor.R
-import com.pbarthuel.testbfor.data.models.Pokemon
+import com.pbarthuel.testbfor.data.models.PokemonWs
 import com.pbarthuel.testbfor.ui.models.PokemonUi
 import com.pbarthuel.testbfor.ui.models.UiState
 import kotlinx.collections.immutable.persistentListOf
@@ -36,7 +36,7 @@ fun PokemonList(
     uiState: UiState.Success,
     onPreviousButtonClicked: () -> Unit,
     onNextButtonClicked: () -> Unit,
-    onGetPokemonDetailsClicked: (Pokemon) -> Unit
+    onGetPokemonDetailsClicked: (PokemonWs) -> Unit
 ) {
     LazyColumn(modifier = modifier.fillMaxSize()) {
         item {
@@ -64,7 +64,7 @@ fun PokemonList(
                 remember {
                     { url: String ->
                         onGetPokemonDetailsClicked(
-                            Pokemon(
+                            PokemonWs(
                                 name = pokemon.name,
                                 url = url
                             )
@@ -113,18 +113,18 @@ private fun PokemonListPreview() {
             pokemonList = persistentListOf(
                 PokemonUi.LightPokemonUi(
                     name = "Bulbasaur",
-                    url = "https://pokeapi.co/api/v2/pokemon/1/"
+                    imageUrl = "https://pokeapi.co/api/v2/pokemon/1/"
                 ),
                 PokemonUi.LightPokemonUi(
                     name = "Ivysaur",
-                    url = "https://pokeapi.co/api/v2/pokemon/2/"
+                    imageUrl = "https://pokeapi.co/api/v2/pokemon/2/"
                 ),
                 PokemonUi.DetailedPokemonUi(
                     name = "Venusaur",
                     id = 3,
                     height = 20,
                     weight = 100,
-                    frontImageUrl = "https://pokeapi.co/api/v2/pokemon/3/"
+                    imageUrl = "https://pokeapi.co/api/v2/pokemon/3/"
                 )
             ),
             previousUrl = "https://pokeapi.co/api/v2/pokemon?offset=0&limit=20",

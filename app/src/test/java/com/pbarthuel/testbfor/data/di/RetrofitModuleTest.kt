@@ -1,6 +1,6 @@
 package com.pbarthuel.testbfor.data.di
 
-import com.pbarthuel.testbfor.data.PokemonListApi
+import com.pbarthuel.testbfor.data.PokemonApi
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
@@ -30,9 +30,9 @@ class RetrofitModuleTest {
     @Test
     fun `test providePokemonListApi`() {
         val retrofit = mockk<Retrofit>()
-        val pokemonListApi = mockk<PokemonListApi>()
+        val pokemonApi = mockk<PokemonApi>()
 
-        every { retrofit.create(PokemonListApi::class.java) } returns pokemonListApi
+        every { retrofit.create(PokemonApi::class.java) } returns pokemonApi
 
         val api = retrofitModule.providePokemonListApi(retrofit)
         assertNotNull(api)

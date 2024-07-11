@@ -1,15 +1,12 @@
 package com.pbarthuel.testbfor.ui
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.pbarthuel.testbfor.data.models.Pokemon
-import com.pbarthuel.testbfor.data.models.PokemonDetailResponse
-import com.pbarthuel.testbfor.data.PokemonListApi
-import com.pbarthuel.testbfor.data.models.PokemonListByTypeResponse
-import com.pbarthuel.testbfor.data.models.PokemonListResponse
-import com.pbarthuel.testbfor.data.models.PokemonSlot
-import com.pbarthuel.testbfor.data.models.PokemonType
-import com.pbarthuel.testbfor.data.models.PokemonTypeListResponse
-import com.pbarthuel.testbfor.data.models.Sprites
+import com.pbarthuel.testbfor.domain.PokemonRepository
+import com.pbarthuel.testbfor.data.models.PokemonWs
+import com.pbarthuel.testbfor.domain.models.Pokemon
+import com.pbarthuel.testbfor.domain.models.PokemonDetail
+import com.pbarthuel.testbfor.domain.models.PokemonPage
+import com.pbarthuel.testbfor.domain.models.PokemonType
 import com.pbarthuel.testbfor.ui.models.PokemonTypeUi
 import com.pbarthuel.testbfor.ui.models.PokemonUi
 import com.pbarthuel.testbfor.ui.models.UiState
@@ -33,12 +30,12 @@ import org.junit.Test
 import org.junit.rules.TestRule
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class PokemonListViewModelTest {
+class PokemonWsListViewModelTest {
 
     @get:Rule
     var rule: TestRule = InstantTaskExecutorRule()
 
-    private lateinit var pokemonListApi: PokemonListApi
+    private lateinit var pokemonRepository: PokemonRepository
     private lateinit var viewModel: PokemonListViewModel
 
     private val testDispatcher = UnconfinedTestDispatcher()
@@ -46,31 +43,25 @@ class PokemonListViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        pokemonListApi = mockk()
+        pokemonRepository = mockk()
 
-        val pokemonListResponse = PokemonListResponse(
+        val pokemonPage = PokemonPage(
             next = "nextUrl",
             previous = "previousUrl",
-            count = 1,
             results = listOf(
                 Pokemon("Bulbasaur", "url1"),
                 Pokemon("Ivysaur", "url2")
             )
         )
-        val pokemonTypeResponse = PokemonTypeListResponse(
-            next = "nextUrl",
-            previous = "previousUrl",
-            count = 1,
-            results = listOf(
-                PokemonType("Grass", "url1"),
-                PokemonType("Poison", "url2")
-            )
+        val pokemonTypeList = listOf(
+            PokemonType("Grass", "url1"),
+            PokemonType("Poison", "url2")
         )
 
-        coEvery { pokemonListApi.getPokemonList(0, 20) } returns pokemonListResponse
-        coEvery { pokemonListApi.getAllPokemonType(0, 40) } returns pokemonTypeResponse
+        coEvery { pokemonRepository.getPokemonList(0, 20) } returns pokemonPage
+        coEvery { pokemonRepository.getAllPokemonType(0, 40) } returns pokemonTypeList
 
-        viewModel = PokemonListViewModel(pokemonListApi, testDispatcher)
+        viewModel = PokemonListViewModel(pokemonRepository, testDispatcher)
     }
 
     @After
@@ -103,14 +94,12 @@ class PokemonListViewModelTest {
     fun `getPokemonsFromType should fetch pokemon list by type`() = runTest {
         advanceUntilIdle()
 
-        val expectedPokemonListResponse = PokemonListByTypeResponse(
-            pokemon = listOf(
-                PokemonSlot(Pokemon("Bulbasaur", "url1")),
-                PokemonSlot(Pokemon("Ivysaur", "url2"))
-            )
+        val expectedPokemonWsListResponse = listOf(
+            Pokemon("Bulbasaur", "url1"),
+            Pokemon("Ivysaur", "url2")
         )
 
-        coEvery { pokemonListApi.getPokemonListByType("url1") } returns expectedPokemonListResponse
+        coEvery { pokemonRepository.getPokemonListByType("url1") } returns expectedPokemonWsListResponse
 
         viewModel.getPokemonsFromType("url1")
 
@@ -136,7 +125,7 @@ class PokemonListViewModelTest {
     fun `getPokemonsFromType should fetch pokemon list by type error`() = runTest {
         advanceUntilIdle()
 
-        coEvery { pokemonListApi.getPokemonListByType("url1") } throws Exception()
+        coEvery { pokemonRepository.getPokemonListByType("url1") } throws Exception()
 
         viewModel.getPokemonsFromType("url1")
 
@@ -164,17 +153,16 @@ class PokemonListViewModelTest {
 
         assertEquals(expectedState, viewModel.uiState.first())
 
-        val expectedPokemonListResponse = PokemonListResponse(
+        val expectedPokemonWsListResponse = PokemonPage(
             next = "nextUrl",
             previous = "previousUrl",
-            count = 1,
             results = listOf(
                 Pokemon("Bulbasaur", "url1"),
                 Pokemon("Ivysaur", "url2")
             )
         )
 
-        coEvery { pokemonListApi.getPokemonList(0, 20) } returns expectedPokemonListResponse
+        coEvery { pokemonRepository.getPokemonList(0, 20) } returns expectedPokemonWsListResponse
 
         viewModel.resetPokemonType()
 
@@ -187,7 +175,7 @@ class PokemonListViewModelTest {
     fun `resetPokemonType should fetch initial pokemon list error`() = runTest {
         advanceUntilIdle()
 
-        coEvery { pokemonListApi.getPokemonList(0, 20) } throws Exception()
+        coEvery { pokemonRepository.getPokemonList(0, 20) } throws Exception()
 
         viewModel.resetPokemonType()
 
@@ -200,17 +188,17 @@ class PokemonListViewModelTest {
     fun `getPokemonDetail should fetch pokemon detail`() = runTest {
         advanceUntilIdle()
 
-        val expectedPokemonDetail = PokemonDetailResponse(
+        val expectedPokemonDetail = PokemonDetail(
             name = "Bulbasaur",
             id = 1,
             height = 7,
             weight = 69,
-            sprites = Sprites(frontDefault = "frontImageUrl"),
+            imageUrl = "frontImageUrl",
         )
 
-        coEvery { pokemonListApi.getPokemonDetail("url1") } returns expectedPokemonDetail
+        coEvery { pokemonRepository.getPokemonDetail("url1") } returns expectedPokemonDetail
 
-        viewModel.getPokemonDetail(Pokemon(name = "Bulbasaur", url = "url1"))
+        viewModel.getPokemonDetail(PokemonWs(name = "Bulbasaur", url = "url1"))
 
         advanceUntilIdle()
 
@@ -223,8 +211,8 @@ class PokemonListViewModelTest {
                     id = 1,
                     height = 7,
                     weight = 69,
-                    frontImageUrl = "frontImageUrl"
-                    ),
+                    imageUrl = "frontImageUrl"
+                ),
                 PokemonUi.LightPokemonUi("Ivysaur", "url2")
             ).toImmutableList(),
             pokemonTypeList = listOf(
@@ -240,9 +228,9 @@ class PokemonListViewModelTest {
     fun `getPokemonDetail should fetch pokemon detail error`() = runTest {
         advanceUntilIdle()
 
-        coEvery { pokemonListApi.getPokemonDetail("url1") } throws Exception()
+        coEvery { pokemonRepository.getPokemonDetail("url1") } throws Exception()
 
-        viewModel.getPokemonDetail(Pokemon(name = "Bulbasaur", url = "url1"))
+        viewModel.getPokemonDetail(PokemonWs(name = "Bulbasaur", url = "url1"))
 
         advanceUntilIdle()
 
@@ -268,17 +256,16 @@ class PokemonListViewModelTest {
 
         assertEquals(expectedState, viewModel.uiState.first())
 
-        val expectedPokemonListResponse = PokemonListResponse(
+        val expectedPokemonWsListResponse = PokemonPage(
             next = "nextUrl2",
             previous = "url1",
-            count = 1,
             results = listOf(
                 Pokemon("Venusaur", "url3"),
                 Pokemon("Charmander", "url4")
             )
         )
 
-        coEvery { pokemonListApi.getPreviousAndNextPokemonList("nextUrl") } returns expectedPokemonListResponse
+        coEvery { pokemonRepository.getPreviousAndNextPokemonList("nextUrl") } returns expectedPokemonWsListResponse
 
         viewModel.nextPage()
 
@@ -304,7 +291,7 @@ class PokemonListViewModelTest {
     fun `nextPage should fetch next page of pokemon list error `() = runTest {
         advanceUntilIdle()
 
-        coEvery { pokemonListApi.getPreviousAndNextPokemonList("nextUrl") } throws Exception()
+        coEvery { pokemonRepository.getPreviousAndNextPokemonList("nextUrl") } throws Exception()
 
         viewModel.nextPage()
 
@@ -332,17 +319,16 @@ class PokemonListViewModelTest {
 
         assertEquals(expectedState, viewModel.uiState.first())
 
-        val expectedPokemonListResponse = PokemonListResponse(
+        val expectedPokemonWsListResponse = PokemonPage(
             next = "url1",
             previous = "previousUrl2",
-            count = 1,
             results = listOf(
                 Pokemon("Charmander", "url4"),
                 Pokemon("Squirtle", "url5")
             )
         )
 
-        coEvery { pokemonListApi.getPreviousAndNextPokemonList("previousUrl") } returns expectedPokemonListResponse
+        coEvery { pokemonRepository.getPreviousAndNextPokemonList("previousUrl") } returns expectedPokemonWsListResponse
 
         viewModel.previousPage()
 
@@ -368,7 +354,7 @@ class PokemonListViewModelTest {
     fun `previousPage should fetch previous page of pokemon list error`() = runTest {
         advanceUntilIdle()
 
-        coEvery { pokemonListApi.getPreviousAndNextPokemonList("previousUrl") } throws Exception()
+        coEvery { pokemonRepository.getPreviousAndNextPokemonList("previousUrl") } throws Exception()
 
         viewModel.previousPage()
 

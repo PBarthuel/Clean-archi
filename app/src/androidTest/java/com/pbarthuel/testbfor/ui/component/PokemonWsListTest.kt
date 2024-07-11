@@ -15,7 +15,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class PokemonListTest {
+class PokemonWsListTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -23,9 +23,9 @@ class PokemonListTest {
     @Test
     fun pokemonListDisplaysCorrectly() {
         val samplePokemons = persistentListOf(
-            PokemonUi.LightPokemonUi(name = "Bulbasaur", url = "url1"),
-            PokemonUi.LightPokemonUi(name = "Charmander", url = "url2"),
-            PokemonUi.LightPokemonUi(name = "Squirtle", url = "url3")
+            PokemonUi.LightPokemonUi(name = "Bulbasaur", imageUrl = "url1"),
+            PokemonUi.LightPokemonUi(name = "Charmander", imageUrl = "url2"),
+            PokemonUi.LightPokemonUi(name = "Squirtle", imageUrl = "url3")
         )
 
         val uiState = UiState.Success(
@@ -61,11 +61,11 @@ class PokemonListTest {
             PokemonUi.DetailedPokemonUi(
                 id = 1,
                 name = "Bulbasaur",
-                frontImageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+                imageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
                 height = 7,
                 weight = 60
             ),
-            PokemonUi.LightPokemonUi(name = "Charmander", url = "url2"),
+            PokemonUi.LightPokemonUi(name = "Charmander", imageUrl = "url2"),
         )
 
         val uiState = UiState.Success(

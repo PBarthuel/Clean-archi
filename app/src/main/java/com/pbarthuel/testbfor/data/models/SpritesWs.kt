@@ -4,7 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class PokemonListByTypeResponse(
-    @SerialName("pokemon") val pokemon: List<PokemonSlotWs>,
+data class SpritesWs(
+    @SerialName("front_default") val frontDefault: String?
 )
-

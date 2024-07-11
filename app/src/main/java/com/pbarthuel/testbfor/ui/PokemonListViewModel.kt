@@ -2,12 +2,11 @@ package com.pbarthuel.testbfor.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pbarthuel.testbfor.data.PokemonListApi
+import com.pbarthuel.testbfor.domain.PokemonRepository
 import com.pbarthuel.testbfor.data.di.IoDispatcher
-import com.pbarthuel.testbfor.data.models.Pokemon
-import com.pbarthuel.testbfor.ui.models.PokemonTypeUi
-import com.pbarthuel.testbfor.ui.models.PokemonUi
+import com.pbarthuel.testbfor.data.models.PokemonWs
 import com.pbarthuel.testbfor.ui.models.UiState
+import com.pbarthuel.testbfor.ui.models.toUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineDispatcher
@@ -19,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PokemonListViewModel @Inject constructor(
-    private val pokemonListApi: PokemonListApi,
+    private val pokemonRepository: PokemonRepository,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
@@ -29,8 +28,8 @@ class PokemonListViewModel @Inject constructor(
     init {
         viewModelScope.launch(ioDispatcher) {
             runCatching {
-                val pokemonResponse = pokemonListApi.getPokemonList(0, 20)
-                val pokemonTypeList = pokemonListApi.getAllPokemonType(0, 40)
+                val pokemonResponse = pokemonRepository.getPokemonList(0, 20)
+                val pokemonTypeList = pokemonRepository.getAllPokemonType(0, 40)
                 pokemonResponse to pokemonTypeList
             }.onSuccess { (pokemonResponse, pokemonTypeList) ->
                 _uiState.update {
@@ -38,10 +37,10 @@ class PokemonListViewModel @Inject constructor(
                         nextUrl = pokemonResponse.next,
                         previousUrl = pokemonResponse.previous,
                         pokemonList = pokemonResponse.results.map {
-                            PokemonUi.LightPokemonUi(it.name, it.url)
+                            it.toUi()
                         }.toImmutableList(),
-                        pokemonTypeList = pokemonTypeList.results.map {
-                            PokemonTypeUi(it.name, it.url)
+                        pokemonTypeList = pokemonTypeList.map {
+                            it.toUi()
                         }.toImmutableList()
                     )
                 }
@@ -54,15 +53,15 @@ class PokemonListViewModel @Inject constructor(
     fun getPokemonsFromType(url: String) {
         viewModelScope.launch(ioDispatcher) {
             runCatching {
-                pokemonListApi.getPokemonListByType(url)
+                pokemonRepository.getPokemonListByType(url)
             }.onSuccess { pokemonList ->
                 _uiState.update { state ->
                     if (state is UiState.Success) {
                         state.copy(
                             nextUrl = null,
                             previousUrl = null,
-                            pokemonList = pokemonList.pokemon.map {
-                                PokemonUi.LightPokemonUi(it.pokemon.name, it.pokemon.url)
+                            pokemonList = pokemonList.map {
+                                it.toUi()
                             }.toImmutableList()
                         )
                     } else {
@@ -76,7 +75,7 @@ class PokemonListViewModel @Inject constructor(
     fun resetPokemonType() {
         viewModelScope.launch(ioDispatcher) {
             runCatching {
-                pokemonListApi.getPokemonList(0, 20)
+                pokemonRepository.getPokemonList(0, 20)
             }.onSuccess { pokemonList ->
                 _uiState.update { state ->
                     if (state is UiState.Success) {
@@ -84,7 +83,7 @@ class PokemonListViewModel @Inject constructor(
                             nextUrl = pokemonList.next,
                             previousUrl = pokemonList.previous,
                             pokemonList = pokemonList.results.map {
-                                PokemonUi.LightPokemonUi(it.name, it.url)
+                                it.toUi()
                             }.toImmutableList()
                         )
                     } else {
@@ -95,23 +94,17 @@ class PokemonListViewModel @Inject constructor(
         }
     }
 
-    fun getPokemonDetail(pokemon: Pokemon) {
+    fun getPokemonDetail(pokemonWs: PokemonWs) {
         viewModelScope.launch(ioDispatcher) {
             runCatching {
-                pokemonListApi.getPokemonDetail(pokemon.url)
+                pokemonRepository.getPokemonDetail(pokemonWs.url)
             }.onSuccess { pokemonDetail ->
                 _uiState.update { state ->
                     if (state is UiState.Success) {
                         state.copy(
                             pokemonList = state.pokemonList.map { findPokemon ->
-                                if (findPokemon.name == pokemon.name) {
-                                    PokemonUi.DetailedPokemonUi(
-                                        id = pokemonDetail.id,
-                                        name = findPokemon.name,
-                                        height = pokemonDetail.height,
-                                        weight = pokemonDetail.weight,
-                                        frontImageUrl = pokemonDetail.sprites.frontDefault ?: ""
-                                    )
+                                if (findPokemon.name == pokemonWs.name) {
+                                    pokemonDetail.toUi()
                                 } else {
                                     findPokemon
                                 }
@@ -130,14 +123,14 @@ class PokemonListViewModel @Inject constructor(
             runCatching {
                 _uiState.update { state ->
                     if (state is UiState.Success) {
-                        val pokemonResponse = state.nextUrl?.let { pokemonListApi.getPreviousAndNextPokemonList(it) }
+                        val pokemonResponse = state.nextUrl?.let { pokemonRepository.getPreviousAndNextPokemonList(it) }
                             ?: throw Exception("Next URL is null")
 
                         state.copy(
                             nextUrl = pokemonResponse.next,
                             previousUrl = pokemonResponse.previous,
                             pokemonList = pokemonResponse.results.map {
-                                PokemonUi.LightPokemonUi(it.name, it.url)
+                                it.toUi()
                             }.toImmutableList()
                         )
                     } else {
@@ -155,14 +148,14 @@ class PokemonListViewModel @Inject constructor(
             runCatching {
                 _uiState.update { state ->
                     if (state is UiState.Success) {
-                        val pokemonResponse = state.previousUrl?.let { pokemonListApi.getPreviousAndNextPokemonList(it) }
+                        val pokemonResponse = state.previousUrl?.let { pokemonRepository.getPreviousAndNextPokemonList(it) }
                             ?: throw Exception("Next URL is null")
 
                         state.copy(
                             nextUrl = pokemonResponse.next,
                             previousUrl = pokemonResponse.previous,
                             pokemonList = pokemonResponse.results.map {
-                                PokemonUi.LightPokemonUi(it.name, it.url)
+                                it.toUi()
                             }.toImmutableList()
                         )
                     } else {

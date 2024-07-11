@@ -1,5 +1,5 @@
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.pbarthuel.testbfor.data.PokemonListApi
+import com.pbarthuel.testbfor.data.PokemonApi
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
@@ -11,9 +11,9 @@ import org.junit.Before
 import org.junit.Test
 import retrofit2.Retrofit
 
-class PokemonListApiTest {
+class PokemonWsApiTest {
     private lateinit var mockWebServer: MockWebServer
-    private lateinit var apiService: PokemonListApi
+    private lateinit var apiService: PokemonApi
 
     @Before
     fun setUp() {
@@ -28,7 +28,7 @@ class PokemonListApiTest {
             .addConverterFactory(json.asConverterFactory(contentType))
             .build()
 
-        apiService = retrofit.create(PokemonListApi::class.java)
+        apiService = retrofit.create(PokemonApi::class.java)
     }
 
     @After
@@ -135,10 +135,10 @@ class PokemonListApiTest {
         val response = apiService.getPokemonListByType(mockWebServer.url(url).toString())
 
         assertEquals(2, response.pokemon.size)
-        assertEquals("bulbasaur", response.pokemon[0].pokemon.name)
-        assertEquals("https://pokeapi.co/api/v2/pokemon/1/", response.pokemon[0].pokemon.url)
-        assertEquals("ivysaur", response.pokemon[1].pokemon.name)
-        assertEquals("https://pokeapi.co/api/v2/pokemon/2/", response.pokemon[1].pokemon.url)
+        assertEquals("bulbasaur", response.pokemon[0].pokemonWs.name)
+        assertEquals("https://pokeapi.co/api/v2/pokemon/1/", response.pokemon[0].pokemonWs.url)
+        assertEquals("ivysaur", response.pokemon[1].pokemonWs.name)
+        assertEquals("https://pokeapi.co/api/v2/pokemon/2/", response.pokemon[1].pokemonWs.url)
     }
 
     @Test
@@ -195,6 +195,6 @@ class PokemonListApiTest {
         assertEquals("bulbasaur", response.name)
         assertEquals(7, response.height)
         assertEquals(69, response.weight)
-        assertEquals("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png", response.sprites.frontDefault)
+        assertEquals("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png", response.spritesWs.frontDefault)
     }
 }

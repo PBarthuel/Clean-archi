@@ -1,7 +1,7 @@
 package com.pbarthuel.testbfor.data.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.pbarthuel.testbfor.data.PokemonListApi
+import com.pbarthuel.testbfor.data.PokemonApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,7 +29,7 @@ object RetrofitModule {
 
     @Provides
     @Singleton
-    fun providePokemonListApi(retrofit: Retrofit): PokemonListApi {
-        return retrofit.create(PokemonListApi::class.java)
+    fun providePokemonListApi(retrofit: Retrofit): PokemonApi {
+        return retrofit.create(PokemonApi::class.java)
     }
 }

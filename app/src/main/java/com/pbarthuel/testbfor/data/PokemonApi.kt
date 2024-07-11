@@ -8,7 +8,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import retrofit2.http.Url
 
-interface PokemonListApi {
+interface PokemonApi {
 
     @GET("pokemon")
     suspend fun getPokemonList(

@@ -10,7 +10,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class DetailedPokemonItemTest {
+class DetailedPokemonWsItemTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -20,7 +20,7 @@ class DetailedPokemonItemTest {
         val pokemon = PokemonUi.DetailedPokemonUi(
             id = 1,
             name = "Bulbasaur",
-            frontImageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+            imageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
             height = 7,
             weight = 60
         )

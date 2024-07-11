@@ -32,7 +32,7 @@ fun DetailedPokemonItem(
     ) {
         AsyncImage(
             modifier = Modifier.size(72.dp),
-            model = pokemon.frontImageUrl,
+            model = pokemon.imageUrl,
             contentDescription = null,
             placeholder = painterResource(R.drawable.ic_launcher_foreground),
             error = painterResource(R.drawable.ic_launcher_foreground)
@@ -60,7 +60,7 @@ private fun DetailedPokemonItemPreview() {
             id = 1,
             height = 7,
             weight = 69,
-            frontImageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png"
+            imageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png"
         )
     )
 }

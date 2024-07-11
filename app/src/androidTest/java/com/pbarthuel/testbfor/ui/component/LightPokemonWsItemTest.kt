@@ -12,7 +12,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class LightPokemonItemTest {
+class LightPokemonWsItemTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -21,7 +21,7 @@ class LightPokemonItemTest {
     fun lightPokemonItemDisplaysCorrectly() {
         val pokemon = PokemonUi.LightPokemonUi(
             name = "Bulbasaur",
-            url = "https://pokeapi.co/api/v2/pokemon/1/"
+            imageUrl = "https://pokeapi.co/api/v2/pokemon/1/"
         )
 
         composeTestRule.setContent {
@@ -39,7 +39,7 @@ class LightPokemonItemTest {
     fun loadDetailsButtonClick() {
         val pokemon = PokemonUi.LightPokemonUi(
             name = "Bulbasaur",
-            url = "https://pokeapi.co/api/v2/pokemon/1/"
+            imageUrl = "https://pokeapi.co/api/v2/pokemon/1/"
         )
         var clickedUrl: String? = null
 
@@ -51,6 +51,6 @@ class LightPokemonItemTest {
         }
 
         composeTestRule.onNodeWithContentDescription("Load Details").performClick()
-        assert(clickedUrl == pokemon.url)
+        assert(clickedUrl == pokemon.imageUrl)
     }
 }
